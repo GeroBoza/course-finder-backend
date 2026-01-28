@@ -1,0 +1,33 @@
+import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { getDatabaseConfig } from './config/database.config';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
+import { RolesModule } from './roles/roles.module';
+import { OrganizationsModule } from './organizations/organizations.module';
+import { CoursesModule } from './courses/courses.module';
+import { CategoriesModule } from './categories/categories.module';
+import { CourseLeadsModule } from './course-leads/course-leads.module';
+
+@Module({
+    imports: [
+        ConfigModule.forRoot({
+            isGlobal: true,
+            envFilePath: '.env',
+        }),
+        TypeOrmModule.forRootAsync({
+            imports: [ConfigModule],
+            useFactory: getDatabaseConfig,
+            inject: [ConfigService],
+        }),
+        AuthModule,
+        UsersModule,
+        RolesModule,
+        OrganizationsModule,
+        CoursesModule,
+        CategoriesModule,
+        CourseLeadsModule,
+    ],
+})
+export class AppModule {}
