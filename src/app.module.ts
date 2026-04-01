@@ -9,6 +9,7 @@ import { OrganizationsModule } from './organizations/organizations.module';
 import { CoursesModule } from './courses/courses.module';
 import { CategoriesModule } from './categories/categories.module';
 import { CourseLeadsModule } from './course-leads/course-leads.module';
+import { CourseImportModule } from './course-import/course-import.module';
 
 @Module({
     imports: [
@@ -28,6 +29,7 @@ import { CourseLeadsModule } from './course-leads/course-leads.module';
         CoursesModule,
         CategoriesModule,
         CourseLeadsModule,
+        CourseImportModule,
     ],
 })
 export class AppModule {}
