@@ -72,27 +72,27 @@ export class CourseImportService {
             const row = rows[i];
 
             // ── Validate required fields ────────────────────────────────────
-            if (!row.nombre?.trim()) {
+            if (!row.name?.trim()) {
                 result.errores.push({ fila: rowNumber, motivo: 'El campo "Nombre" es obligatorio.' });
                 continue;
             }
 
-            if (!row.organizacion?.trim()) {
+            if (!row.organization?.trim()) {
                 result.errores.push({ fila: rowNumber, motivo: 'El campo "Organizacion" es obligatorio.' });
                 continue;
             }
 
-            if (!row.urlInscripcion?.trim()) {
+            if (!row.enrollmentUrl?.trim()) {
                 result.errores.push({ fila: rowNumber, motivo: 'El campo "URL Inscripcion" es obligatorio.' });
                 continue;
             }
 
             // ── Resolve organization ─────────────────────────────────────────
-            const org = orgMap.get(row.organizacion.trim().toLowerCase());
+            const org = orgMap.get(row.organization.trim().toLowerCase());
             if (!org) {
                 result.errores.push({
                     fila: rowNumber,
-                    motivo: `Organización "${row.organizacion}" no encontrada en la base de datos.`,
+                    motivo: `Organización "${row.organization}" no encontrada en la base de datos.`,
                 });
                 continue;
             }
@@ -100,7 +100,7 @@ export class CourseImportService {
             // ── Duplicate check: same name + organizationId ──────────────────
             const existing = await this.courseRepository.findOne({
                 where: {
-                    name: row.nombre.trim(),
+                    name: row.name.trim(),
                     organizationId: org.id,
                 },
             });
@@ -111,16 +111,16 @@ export class CourseImportService {
             }
 
             // ── Parse optional fields ────────────────────────────────────────
-            const startDate = this.parseDate(row.fechaInicio);
-            const endDate = this.parseDate(row.fechaFin);
-            const isActive = row.activo
-                ? !['no', 'false', '0'].includes(row.activo.toLowerCase())
+            const startDate = this.parseDate(row.startDate);
+            const endDate = this.parseDate(row.endDate);
+            const isActive = row.active
+                ? !['no', 'false', '0'].includes(row.active.toLowerCase())
                 : true;
 
             // ── Resolve categories ───────────────────────────────────────────
             const resolvedCategoryIds: number[] = [];
-            if (row.categorias?.trim()) {
-                const catNames = row.categorias.split(',').map((c) => c.trim().toLowerCase());
+            if (row.categories?.trim()) {
+                const catNames = row.categories.split(',').map((c) => c.trim().toLowerCase());
                 for (const catName of catNames) {
                     const cat = catMap.get(catName);
                     if (cat) resolvedCategoryIds.push(cat.id);
@@ -130,11 +130,11 @@ export class CourseImportService {
             // ── Create the course ────────────────────────────────────────────
             try {
                 const course = this.courseRepository.create({
-                    name: row.nombre.trim(),
-                    description: row.descripcion?.trim() || null,
+                    name: row.name.trim(),
+                    description: row.description?.trim() || null,
                     organizationId: org.id,
-                    enrollmentUrl: row.urlInscripcion.trim(),
-                    academicYear: row.anioAcademico?.trim() || null,
+                    enrollmentUrl: row.enrollmentUrl.trim(),
+                    academicYear: row.academicYear?.trim() || null,
                     startDate: startDate ?? null,
                     endDate: endDate ?? null,
                     isActive,
