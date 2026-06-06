@@ -1,13 +1,13 @@
 export interface ParsedCourseRow {
-    nombre: string;
-    descripcion?: string;
-    organizacion: string;
-    urlInscripcion: string;
-    anioAcademico?: string;
-    fechaInicio?: string;
-    fechaFin?: string;
-    categorias?: string;
-    activo?: string;
+    name: string;
+    description?: string;
+    organization: string;
+    enrollmentUrl: string;
+    academicYear?: string;
+    startDate?: string;
+    endDate?: string;
+    categories?: string;
+    active?: string;
 }
 
 export interface IFileParser {
