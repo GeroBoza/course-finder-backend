@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsNumber, IsString, Min } from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsOptional, IsNumber, IsString, Min, IsBoolean } from 'class-validator';
+import { Type, Transform } from 'class-transformer';
 
 export class FilterCourseDto {
     @ApiProperty({
@@ -43,4 +43,15 @@ export class FilterCourseDto {
     @IsNumber()
     @Min(1)
     limit?: number = 10;
+
+    @ApiProperty({
+        description:
+            'Incluir cursos inactivos (útil para el panel de administración)',
+        default: false,
+        required: false,
+    })
+    @IsOptional()
+    @Transform(({ value }) => value === 'true' || value === true)
+    @IsBoolean()
+    includeInactive?: boolean = false;
 }

@@ -23,6 +23,7 @@ export class CoursesService {
             academicYear,
             page = 1,
             limit = 10,
+            includeInactive = false,
         } = filters;
         const skip = (page - 1) * limit;
 
@@ -32,8 +33,13 @@ export class CoursesService {
             .leftJoinAndSelect('course.createdBy', 'createdBy')
             .leftJoinAndSelect('course.images', 'images')
             .leftJoinAndSelect('course.courseCategories', 'courseCategories')
-            .leftJoinAndSelect('courseCategories.category', 'category')
-            .where('course.isActive = :isActive', { isActive: true });
+            .leftJoinAndSelect('courseCategories.category', 'category');
+
+        if (!includeInactive) {
+            queryBuilder.where('course.isActive = :isActive', {
+                isActive: true,
+            });
+        }
 
         if (categoryId) {
             queryBuilder.andWhere('category.id = :categoryId', { categoryId });
@@ -165,5 +171,25 @@ export class CoursesService {
         const course = await this.findOne(id);
         course.isActive = false;
         await this.courseRepository.save(course);
+    }
+
+    async incrementViewCount(id: number): Promise<{ viewCount: number }> {
+        const result = await this.courseRepository
+            .createQueryBuilder()
+            .update(Course)
+            .set({ viewCount: () => 'view_count + 1' })
+            .where('id = :id', { id })
+            .execute();
+
+        if (!result.affected) {
+            throw new NotFoundException(`Curso con ID ${id} no encontrado`);
+        }
+
+        const course = await this.courseRepository.findOne({
+            where: { id },
+            select: ['id', 'viewCount'],
+        });
+
+        return { viewCount: course.viewCount };
     }
 }
