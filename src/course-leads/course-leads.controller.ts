@@ -6,12 +6,20 @@ import {
     Param,
     ParseIntPipe,
     Req,
+    UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+    ApiTags,
+    ApiOperation,
+    ApiResponse,
+    ApiBearerAuth,
+} from '@nestjs/swagger';
 import { CourseLeadsService } from './course-leads.service';
 import { CreateCourseLeadDto } from './dto/create-course-lead.dto';
 import { CourseLead } from './course-lead.entity';
 import { Request } from 'express';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { AdminGuard } from '../common/guards/admin.guard';
 
 @ApiTags('course-leads')
 @Controller('course-leads')
@@ -43,7 +51,9 @@ export class CourseLeadsController {
     }
 
     @Get()
-    @ApiOperation({ summary: 'Obtener todos los leads' })
+    @UseGuards(JwtAuthGuard, AdminGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Obtener todos los leads (Solo Admin)' })
     @ApiResponse({
         status: 200,
         description: 'Lista de leads',
@@ -54,7 +64,9 @@ export class CourseLeadsController {
     }
 
     @Get(':id')
-    @ApiOperation({ summary: 'Obtener un lead por ID' })
+    @UseGuards(JwtAuthGuard, AdminGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Obtener un lead por ID (Solo Admin)' })
     @ApiResponse({
         status: 200,
         description: 'Lead encontrado',

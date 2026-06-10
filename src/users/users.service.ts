@@ -30,4 +30,11 @@ export class UsersService {
             relations: ['role'],
         });
     }
+
+    async findByEmail(email: string): Promise<User | null> {
+        return this.userRepository.findOne({
+            where: { email },
+            relations: ['role'],
+        });
+    }
 }
