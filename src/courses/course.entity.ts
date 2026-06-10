@@ -63,6 +63,9 @@ export class Course {
     @Column({ type: 'boolean', default: true, name: 'is_active' })
     isActive: boolean;
 
+    @Column({ type: 'int', unsigned: true, default: 0, name: 'view_count' })
+    viewCount: number;
+
     @CreateDateColumn({ name: 'created_at' })
     createdAt: Date;
 

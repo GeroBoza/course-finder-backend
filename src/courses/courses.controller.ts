@@ -22,6 +22,7 @@ import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { FilterCourseDto } from './dto/filter-course.dto';
+import { ViewCountResponseDto } from './dto/view-count-response.dto';
 import { Course } from './course.entity';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { AdminGuard } from '../common/guards/admin.guard';
@@ -38,6 +39,21 @@ export class CoursesController {
     @ApiResponse({ status: 200, description: 'Lista de cursos paginada' })
     async findAll(@Query() filters: FilterCourseDto) {
         return this.coursesService.findAll(filters);
+    }
+
+    @Post(':id/view')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Registrar una visualización del curso' })
+    @ApiResponse({
+        status: 200,
+        description: 'Contador actualizado',
+        type: ViewCountResponseDto,
+    })
+    @ApiResponse({ status: 404, description: 'Curso no encontrado' })
+    async registerView(
+        @Param('id', ParseIntPipe) id: number,
+    ): Promise<ViewCountResponseDto> {
+        return this.coursesService.incrementViewCount(id);
     }
 
     @Get(':id')
