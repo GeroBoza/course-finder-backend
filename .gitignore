@@ -1,6 +1,10 @@
 # compiled output
 /dist
 /node_modules
+*.tsbuildinfo
+scripts/*.js
+scripts/*.js.map
+scripts/*.d.ts
 
 # Logs
 logs
