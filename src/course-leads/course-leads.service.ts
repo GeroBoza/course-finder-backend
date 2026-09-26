@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CourseLead } from './course-lead.entity';
 import { CreateCourseLeadDto } from './dto/create-course-lead.dto';
+import { CourseStatsResponseDto } from './dto/course-stats-response.dto';
 import { Course } from '../courses/course.entity';
 
 @Injectable()
@@ -30,6 +31,19 @@ export class CourseLeadsService {
             );
         }
 
+        // Un mismo email no genera más de un lead por curso: con el primer
+        // registro ya sabemos que la persona mostró interés
+        const existingLead = await this.courseLeadRepository.findOne({
+            where: {
+                courseId: createCourseLeadDto.courseId,
+                email: createCourseLeadDto.email,
+            },
+        });
+
+        if (existingLead) {
+            return existingLead;
+        }
+
         const courseLead = this.courseLeadRepository.create({
             ...createCourseLeadDto,
             ipAddress,
@@ -44,6 +58,31 @@ export class CourseLeadsService {
             relations: ['course', 'user'],
             order: { createdAt: 'DESC' },
         });
+    }
+
+    async findStatsByCourse(courseId: number): Promise<CourseStatsResponseDto> {
+        const course = await this.courseRepository.findOne({
+            where: { id: courseId },
+        });
+
+        if (!course) {
+            throw new NotFoundException(
+                `Curso con ID ${courseId} no encontrado`,
+            );
+        }
+
+        const leads = await this.courseLeadRepository.find({
+            where: { courseId },
+            order: { createdAt: 'DESC' },
+        });
+
+        return {
+            courseId: course.id,
+            courseName: course.name,
+            viewCount: course.viewCount,
+            leadsCount: leads.length,
+            leads,
+        };
     }
 
     async findOne(id: number): Promise<CourseLead> {
