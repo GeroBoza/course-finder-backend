@@ -16,6 +16,7 @@ import {
 } from '@nestjs/swagger';
 import { CourseLeadsService } from './course-leads.service';
 import { CreateCourseLeadDto } from './dto/create-course-lead.dto';
+import { CourseStatsResponseDto } from './dto/course-stats-response.dto';
 import { CourseLead } from './course-lead.entity';
 import { Request } from 'express';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -61,6 +62,24 @@ export class CourseLeadsController {
     })
     async findAll(): Promise<CourseLead[]> {
         return this.courseLeadsService.findAll();
+    }
+
+    @Get('stats/:courseId')
+    @UseGuards(JwtAuthGuard, AdminGuard)
+    @ApiBearerAuth()
+    @ApiOperation({
+        summary: 'Estadísticas de inscripciones de un curso (Solo Admin)',
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'Visitas, solicitudes y detalle de los solicitantes',
+        type: CourseStatsResponseDto,
+    })
+    @ApiResponse({ status: 404, description: 'Curso no encontrado' })
+    async findStatsByCourse(
+        @Param('courseId', ParseIntPipe) courseId: number,
+    ): Promise<CourseStatsResponseDto> {
+        return this.courseLeadsService.findStatsByCourse(courseId);
     }
 
     @Get(':id')

@@ -34,6 +34,9 @@ export class CourseLead {
     @Column({ type: 'varchar', length: 255 })
     email: string;
 
+    @Column({ type: 'varchar', length: 30, nullable: true })
+    phone: string;
+
     @Column({ type: 'varchar', length: 45, nullable: true, name: 'ip_address' })
     ipAddress: string;
 

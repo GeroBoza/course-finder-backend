@@ -4,7 +4,7 @@ import {
     IsNotEmpty,
     IsEmail,
     IsNumber,
-    IsOptional,
+    MaxLength,
 } from 'class-validator';
 
 export class CreateCourseLeadDto {
@@ -23,11 +23,9 @@ export class CreateCourseLeadDto {
     @IsNotEmpty()
     email: string;
 
-    @ApiProperty({
-        description: 'ID del usuario (opcional si está autenticado)',
-        required: false,
-    })
-    @IsNumber()
-    @IsOptional()
-    userId?: number;
+    @ApiProperty({ description: 'Teléfono', example: '+54 9 11 1234-5678' })
+    @IsString()
+    @IsNotEmpty()
+    @MaxLength(30)
+    phone: string;
 }
