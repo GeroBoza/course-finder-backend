@@ -49,6 +49,11 @@ export class UpdateCourseDto {
     @IsOptional()
     isActive?: boolean;
 
+    @ApiProperty({ description: 'Curso destacado en el home', required: false })
+    @IsBoolean()
+    @IsOptional()
+    isFeatured?: boolean;
+
     @ApiProperty({
         description: 'IDs de categorías',
         type: [Number],

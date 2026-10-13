@@ -7,6 +7,7 @@ import {
     HttpCode,
     HttpStatus,
     UseGuards,
+    Body,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
@@ -70,6 +71,11 @@ export class CourseImportController {
             type: 'object',
             properties: {
                 file: { type: 'string', format: 'binary' },
+                createMissingOrganizations: {
+                    type: 'string',
+                    description:
+                        'Si es "true", crea las organizaciones que no existan y continúa la importación',
+                },
             },
         },
     })
@@ -86,6 +92,8 @@ export class CourseImportController {
     async importCourses(
         @UploadedFile() file: Express.Multer.File,
         @CurrentUser() user: User,
+        @Body('createMissingOrganizations')
+        createMissingOrganizations?: string,
     ): Promise<ImportResultDto> {
         if (!file) {
             throw new BadRequestException('No se recibió ningún archivo.');
@@ -96,6 +104,8 @@ export class CourseImportController {
             file.mimetype,
             file.originalname,
             user.id,
+            createMissingOrganizations === 'true' ||
+                createMissingOrganizations === '1',
         );
     }
 }

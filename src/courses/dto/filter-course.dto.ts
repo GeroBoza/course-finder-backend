@@ -54,4 +54,22 @@ export class FilterCourseDto {
     @Transform(({ value }) => value === 'true' || value === true)
     @IsBoolean()
     includeInactive?: boolean = false;
+
+    @ApiProperty({
+        description: 'Buscar por nombre de curso',
+        required: false,
+    })
+    @IsOptional()
+    @IsString()
+    search?: string;
+
+    @ApiProperty({
+        description: 'Solo cursos destacados',
+        default: false,
+        required: false,
+    })
+    @IsOptional()
+    @Transform(({ value }) => value === 'true' || value === true)
+    @IsBoolean()
+    isFeatured?: boolean;
 }
