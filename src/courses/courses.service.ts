@@ -6,6 +6,7 @@ import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { FilterCourseDto } from './dto/filter-course.dto';
 import { CourseCategory } from './course-category.entity';
+import { randomInitialViewCount } from './view-count.util';
 
 @Injectable()
 export class CoursesService {
@@ -24,6 +25,8 @@ export class CoursesService {
             page = 1,
             limit = 10,
             includeInactive = false,
+            search,
+            isFeatured,
         } = filters;
         const skip = (page - 1) * limit;
 
@@ -54,6 +57,18 @@ export class CoursesService {
         if (academicYear) {
             queryBuilder.andWhere('course.academicYear = :academicYear', {
                 academicYear,
+            });
+        }
+
+        if (search?.trim()) {
+            queryBuilder.andWhere('course.name LIKE :search', {
+                search: `%${search.trim()}%`,
+            });
+        }
+
+        if (isFeatured) {
+            queryBuilder.andWhere('course.isFeatured = :isFeatured', {
+                isFeatured: true,
             });
         }
 
@@ -93,9 +108,11 @@ export class CoursesService {
         createCourseDto: CreateCourseDto,
         createdById: number,
     ): Promise<Course> {
+        const { categoryIds, ...courseFields } = createCourseDto;
         const course = this.courseRepository.create({
-            ...createCourseDto,
+            ...courseFields,
             createdById,
+            viewCount: randomInitialViewCount(),
             startDate: createCourseDto.startDate
                 ? new Date(createCourseDto.startDate)
                 : null,
@@ -107,11 +124,8 @@ export class CoursesService {
         const savedCourse = await this.courseRepository.save(course);
 
         // Asociar categorías si se proporcionan
-        if (
-            createCourseDto.categoryIds &&
-            createCourseDto.categoryIds.length > 0
-        ) {
-            const courseCategories = createCourseDto.categoryIds.map(
+        if (categoryIds && categoryIds.length > 0) {
+            const courseCategories = categoryIds.map(
                 (categoryId) =>
                     this.courseCategoryRepository.create({
                         courseId: savedCourse.id,

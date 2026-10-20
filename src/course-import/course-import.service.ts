@@ -9,6 +9,7 @@ import { XlsxParserService } from './parsers/xlsx-parser.service';
 import { DocxParserService } from './parsers/docx-parser.service';
 import { IFileParser } from './parsers/file-parser.interface';
 import { ImportResultDto } from './dto/import-result.dto';
+import { randomInitialViewCount } from '../courses/view-count.util';
 
 @Injectable()
 export class CourseImportService {
@@ -35,6 +36,7 @@ export class CourseImportService {
         mimetype: string,
         originalname: string,
         createdById: number,
+        createMissingOrganizations = false,
     ): Promise<ImportResultDto> {
         const extension = originalname.includes('.')
             ? '.' + originalname.split('.').pop()?.toLowerCase()
@@ -65,7 +67,17 @@ export class CourseImportService {
         const orgMap = new Map(allOrgs.map((o) => [o.name.trim().toLowerCase(), o]));
         const catMap = new Map(allCats.map((c) => [c.name.trim().toLowerCase(), c]));
 
-        const result: ImportResultDto = { importados: 0, omitidos: 0, errores: [] };
+        const result: ImportResultDto = {
+            importados: 0,
+            omitidos: 0,
+            errores: [],
+            organizacionesFaltantes: [],
+            organizacionesCreadas: 0,
+        };
+        const missingOrgs = new Map<
+            string,
+            { nombre: string; filas: number[]; cursos: string[] }
+        >();
 
         for (let i = 0; i < rows.length; i++) {
             const rowNumber = i + 2; // +2 because row 1 is headers
@@ -88,13 +100,30 @@ export class CourseImportService {
             }
 
             // ── Resolve organization ─────────────────────────────────────────
-            const org = orgMap.get(row.organization.trim().toLowerCase());
+            const orgKey = row.organization.trim().toLowerCase();
+            let org = orgMap.get(orgKey);
             if (!org) {
-                result.errores.push({
-                    fila: rowNumber,
-                    motivo: `Organización "${row.organization}" no encontrada en la base de datos.`,
+                if (!createMissingOrganizations) {
+                    const existing = missingOrgs.get(orgKey);
+                    if (existing) {
+                        existing.filas.push(rowNumber);
+                        existing.cursos.push(row.name.trim());
+                    } else {
+                        missingOrgs.set(orgKey, {
+                            nombre: row.organization.trim(),
+                            filas: [rowNumber],
+                            cursos: [row.name.trim()],
+                        });
+                    }
+                    continue;
+                }
+
+                const createdOrg = this.organizationRepository.create({
+                    name: row.organization.trim(),
                 });
-                continue;
+                org = await this.organizationRepository.save(createdOrg);
+                orgMap.set(orgKey, org);
+                result.organizacionesCreadas++;
             }
 
             // ── Duplicate check: same name + organizationId ──────────────────
@@ -138,6 +167,7 @@ export class CourseImportService {
                     startDate: startDate ?? null,
                     endDate: endDate ?? null,
                     isActive,
+                    viewCount: randomInitialViewCount(),
                     createdById,
                 });
 
@@ -159,6 +189,7 @@ export class CourseImportService {
             }
         }
 
+        result.organizacionesFaltantes = Array.from(missingOrgs.values());
         return result;
     }
 

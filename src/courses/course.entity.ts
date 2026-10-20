@@ -63,6 +63,9 @@ export class Course {
     @Column({ type: 'boolean', default: true, name: 'is_active' })
     isActive: boolean;
 
+    @Column({ type: 'boolean', default: false, name: 'is_featured' })
+    isFeatured: boolean;
+
     @Column({ type: 'int', unsigned: true, default: 0, name: 'view_count' })
     viewCount: number;
 

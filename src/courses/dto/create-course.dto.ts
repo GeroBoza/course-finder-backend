@@ -72,6 +72,15 @@ export class CreateCourseDto {
     isActive?: boolean;
 
     @ApiProperty({
+        description: 'Curso destacado en el home',
+        default: false,
+        required: false,
+    })
+    @IsBoolean()
+    @IsOptional()
+    isFeatured?: boolean;
+
+    @ApiProperty({
         description: 'IDs de categorías',
         type: [Number],
         required: false,
