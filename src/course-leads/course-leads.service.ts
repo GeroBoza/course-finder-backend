@@ -1,18 +1,22 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CourseLead } from './course-lead.entity';
 import { CreateCourseLeadDto } from './dto/create-course-lead.dto';
 import { CourseStatsResponseDto } from './dto/course-stats-response.dto';
 import { Course } from '../courses/course.entity';
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class CourseLeadsService {
+    private readonly logger = new Logger(CourseLeadsService.name);
+
     constructor(
         @InjectRepository(CourseLead)
         private readonly courseLeadRepository: Repository<CourseLead>,
         @InjectRepository(Course)
         private readonly courseRepository: Repository<Course>,
+        private readonly mailService: MailService,
     ) {}
 
     async create(
@@ -23,6 +27,7 @@ export class CourseLeadsService {
         // Verificar que el curso existe
         const course = await this.courseRepository.findOne({
             where: { id: createCourseLeadDto.courseId },
+            relations: ['organization'],
         });
 
         if (!course) {
@@ -50,7 +55,26 @@ export class CourseLeadsService {
             userAgent,
         });
 
-        return this.courseLeadRepository.save(courseLead);
+        const savedLead = await this.courseLeadRepository.save(courseLead);
+
+        try {
+            await this.mailService.sendLeadEmails({
+                fullName: savedLead.fullName,
+                email: savedLead.email,
+                phone: savedLead.phone,
+                courseName: course.name,
+                organizationName: course.organization?.name,
+                enrollmentUrl: course.enrollmentUrl,
+            });
+        } catch (error) {
+            const message =
+                error instanceof Error ? error.message : 'Error desconocido';
+            this.logger.error(
+                `No se pudieron enviar los mails del lead ${savedLead.id}: ${message}`,
+            );
+        }
+
+        return savedLead;
     }
 
     async findAll(): Promise<CourseLead[]> {

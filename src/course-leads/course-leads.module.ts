@@ -4,9 +4,10 @@ import { CourseLeadsController } from './course-leads.controller';
 import { CourseLeadsService } from './course-leads.service';
 import { CourseLead } from './course-lead.entity';
 import { Course } from '../courses/course.entity';
+import { MailModule } from '../mail/mail.module';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([CourseLead, Course])],
+    imports: [TypeOrmModule.forFeature([CourseLead, Course]), MailModule],
     controllers: [CourseLeadsController],
     providers: [CourseLeadsService],
     exports: [CourseLeadsService],
