@@ -135,7 +135,9 @@ Mientras que el backend se encarga de:
 
 ## Configuración del entorno
 
-Variables de entorno necesarias:
+Copiá `.env.example` a `.env` y completá los valores. Archivo de referencia: `.env.example`.
+
+Variables necesarias:
 
 ```env
 DB_HOST=localhost
@@ -143,12 +145,21 @@ DB_PORT=8889
 DB_USER=root
 DB_PASSWORD=root
 DB_NAME=cursos_platform
+
+SMTP_HOST=smtp.envialosimple.email
+SMTP_PORT=587
+SMTP_USER=
+SMTP_PASS=
+MAIL_FROM=Capa Continua <noreply@capacontinua.com>
+MAIL_NOTIFY_TO=
 ```
 
 Notas:
 
 - La base de datos debe existir previamente
 - `synchronize` está deshabilitado
+- El correo transaccional usa EnvíaloSimple (SMTP STARTTLS, TLSv1.3). Sin estas variables los leads se guardan igual y el mail queda deshabilitado.
+- Prueba manual de SMTP (un solo destinatario): `npm run mail:test -- tu@email.com`
 
 ---
 

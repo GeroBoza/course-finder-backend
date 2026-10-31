@@ -12,6 +12,7 @@ import { CategoriesModule } from './categories/categories.module';
 import { CourseLeadsModule } from './course-leads/course-leads.module';
 import { CourseImportModule } from './course-import/course-import.module';
 import { SettingsModule } from './settings/settings.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
     imports: [
@@ -30,6 +31,7 @@ import { SettingsModule } from './settings/settings.module';
         OrganizationsModule,
         CoursesModule,
         CategoriesModule,
+        MailModule,
         CourseLeadsModule,
         CourseImportModule,
         SettingsModule,

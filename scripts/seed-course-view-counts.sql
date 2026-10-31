@@ -1,5 +1,5 @@
 /**
- * Asigna un número inicial aleatorio de visualizaciones (40–180) a los cursos
+ * Asigna un número inicial aleatorio de visualizaciones (20–150) a los cursos
  * que todavía tienen view_count = 0, para que el sitio no se vea vacío.
  *
  * Las visitas reales siguen incrementando desde este piso.
@@ -8,5 +8,5 @@
  */
 
 UPDATE courses
-SET view_count = 40 + FLOOR(RAND() * 141)
+SET view_count = 20 + FLOOR(RAND() * 131)
 WHERE view_count = 0;
