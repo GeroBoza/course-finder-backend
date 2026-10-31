@@ -128,7 +128,7 @@ export class MailService implements OnModuleInit {
             ? `URL de inscripción del emisor: ${payload.enrollmentUrl.trim()}`
             : 'El curso no tiene URL de inscripción cargada.';
 
-        const notifySubject = `Nuevo lead: ${payload.courseName}`;
+        const notifySubject = `Nueva inscripción: ${payload.courseName}`;
         const notifyText = [
             'Se registró un nuevo interés desde CapaContinua.',
             '',
